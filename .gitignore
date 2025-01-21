@@ -29,6 +29,7 @@ __pycache__/
 *go.work
 *go.work.sum
 *.out
+*bin/
 
 # Ignore C-specific files
 *.o
