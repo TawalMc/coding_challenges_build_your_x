@@ -3,38 +3,70 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
-
-	// "os/exec"
+	"strconv"
+	"strings"
 	"testing"
 )
 
 func TestWordCounter(t *testing.T) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Errorf("error current dir: %v", err)
+	getFilePath := func(fileName string) string {
+		cwd, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+
+		testFilePath, err := filepath.Abs(filepath.Join(cwd, "../"+fileName))
+
+		if err != nil {
+			panic(err)
+		}
+		return testFilePath
 	}
-	subFolder := "../"
-	fileName := "test.txt"
 
-	testFilePath, err := filepath.Abs(filepath.Join(cwd, subFolder, fileName))
+	countWithWC := func(flag, testFilePath string) int64 {
+		out, err := exec.Command("wc", flag, testFilePath).Output()
+		if err != nil {
+			panic(err)
+		}
 
-	if err != nil {
-		t.Errorf("error abs path: %v", err)
+		byteCounted := strings.Split(string(out), " ")[0]
+		expected, err := strconv.ParseInt(byteCounted, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		return expected
 	}
-	
-	t.Run("byte count", func(t *testing.T) {
-		// fileTestDir, err := os.Getwd()
 
-		fmt.Println("yeah", testFilePath)
+	type TestStruct struct {
+		testName      string
+		flag          string
+		file          string
+		expectedCount int64
+	}
+	fillStruct := func (name, flag, file string) TestStruct {
+		filePath := getFilePath(file)
+		return TestStruct{
+			testName: name,
+			flag: flag,
+			file: filePath,
+			expectedCount: countWithWC(flag, filePath),
+		}
+	}
 
-		// want := 0
-		// got := WordCounter("")
+	countTests := []TestStruct{
+		fillStruct("byte count", "-c", "test.txt"),
+		fillStruct("line count", "-l", "test.txt"),
+	}
 
-		// if got != want {
-
-		// }
-
-		// cmd := exec.Command("wc", "-c", "")
-	})
+	for _, test := range countTests {
+		t.Run(test.testName, func(t *testing.T) {
+			got := WordCounter(test.flag, test.file)
+			if got != test.expectedCount {
+				t.Errorf("got: %v, want: %v\n", got, test.expectedCount)
+			}
+			fmt.Printf("got: %v, want: %v\n", got, test.expectedCount)
+		})
+	}
 }
