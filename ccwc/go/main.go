@@ -41,23 +41,22 @@ func main() {
 		}
 	}
 
-	// resultChannel := make(chan ResultChan)
+	resultChannel := make(chan ResultChan)
 
 	for _, file := range files {
-		// go func() {
+		go func() {
 			argsAndCounts, err := WordCounter(args, file)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(file, argsAndCounts)
-			// resultChannel <- ResultChan{file, argsAndCounts}
-		// }()
+			resultChannel <- ResultChan{file, argsAndCounts}
+		}()
 	}
 
-	// for idx := 0; idx < len(files); idx++ {
-	// 	r := <-resultChannel
-	// 	fmt.Println(r.cw, r.f)
-	// }
+	for idx := 0; idx < len(files); idx++ {
+		r := <-resultChannel
+		fmt.Println(r.cw, r.f)
+	}
 
 }
 
