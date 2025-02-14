@@ -10,17 +10,20 @@ const (
 	MAX_BYTES_READ = 1024 * 5
 )
 
-func WordCounter(args *CWArgs, file string) error {
+func WordCounter(cwArgs CWArgs, file string) (CWArgs, error) {
+	args := cwArgs
+	defer duration(track("wc"))
+
 	f, err := os.Open(file)
 	if err != nil {
-		return err
+		return CWArgs{}, err
 	}
 
 	if args.l.arg {
 		args.l.count, err = lineCount(f)
 
 		if err != nil {
-			return err
+			return CWArgs{}, err
 		}
 	}
 
@@ -28,7 +31,7 @@ func WordCounter(args *CWArgs, file string) error {
 		args.w.count, err = wordCount(f)
 
 		if err != nil {
-			return err
+			return CWArgs{}, err
 		}
 	}
 
@@ -36,7 +39,7 @@ func WordCounter(args *CWArgs, file string) error {
 		args.m.count, err = charCount(f)
 
 		if err != nil {
-			return err
+			return CWArgs{}, err
 		}
 	}
 
@@ -44,12 +47,12 @@ func WordCounter(args *CWArgs, file string) error {
 		args.c.count, err = byteCountV1(f)
 
 		if err != nil {
-			return err
+			return CWArgs{}, err
 		}
 	}
 
 	f.Close()
-	return nil
+	return args, nil
 }
 
 func lineCount(file *os.File) (int64, error) {

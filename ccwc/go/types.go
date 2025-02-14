@@ -50,3 +50,8 @@ func (args CWArgs) String() string {
 
 	return output
 }
+
+type ResultChan struct {
+	f  string
+	cw CWArgs
+}

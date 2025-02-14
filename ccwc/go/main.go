@@ -9,6 +9,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	defer duration(track("main"))
 
 	lineCount := flag.Bool("l", false, "count number of line in a file")
 	wordCount := flag.Bool("w", false, "count number of word in a file")
@@ -40,11 +41,24 @@ func main() {
 		}
 	}
 
-	err := WordCounter(&args, files[0])
-	if err != nil {
-		log.Fatal(err)
+	// resultChannel := make(chan ResultChan)
+
+	for _, file := range files {
+		// go func() {
+			argsAndCounts, err := WordCounter(args, file)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(file, argsAndCounts)
+			// resultChannel <- ResultChan{file, argsAndCounts}
+		// }()
 	}
-	fmt.Println(args, files[0])
+
+	// for idx := 0; idx < len(files); idx++ {
+	// 	r := <-resultChannel
+	// 	fmt.Println(r.cw, r.f)
+	// }
+
 }
 
 func PrintDefaults() {
