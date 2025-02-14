@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 )
@@ -10,18 +9,6 @@ import (
 const (
 	MAX_BYTES_READ = 1024 * 5
 )
-
-type ArgAndCount struct {
-	arg   bool
-	count int64
-}
-
-type CWArgs struct {
-	l ArgAndCount
-	w ArgAndCount
-	m ArgAndCount
-	c ArgAndCount
-}
 
 func WordCounter(args *CWArgs, file string) error {
 	f, err := os.Open(file)
@@ -132,44 +119,6 @@ func byteCountV1(file *os.File) (int64, error) {
 	}
 
 	return count, nil
-}
-
-// check after: reflection
-func formatOuput(args CWArgs) string {
-	counts := make([]string, 4)
-	idx := 0
-
-	if args.l.arg {
-		counts[idx] = "l: " + fmt.Sprint(args.l.count)
-		idx++
-	}
-
-	if args.w.arg {
-		counts[idx] = "w: " + fmt.Sprint(args.w.count)
-		idx++
-	}
-
-	if args.m.arg {
-		counts[idx] = "m: " + fmt.Sprint(args.m.count)
-		idx++
-	}
-
-	if args.c.arg {
-		counts[idx] = "c: " + fmt.Sprint(args.c.count)
-		idx++
-	}
-
-	if idx == 0 {
-		return ""
-	}
-
-	output := ""
-	for i := 0; i < idx-1; i++ {
-		output += counts[i] + ", "
-	}
-	output += counts[idx-1]
-
-	return output
 }
 
 /* func byteCountV2(file *os.File) (int64, error) {

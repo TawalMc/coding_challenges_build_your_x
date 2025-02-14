@@ -39,11 +39,12 @@ func main() {
 			c: ArgAndCount{true, 0},
 		}
 	}
+
 	err := WordCounter(&args, files[0])
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(formatOuput(args), files[0])
+	fmt.Println(args, files[0])
 }
 
 func PrintDefaults() {
