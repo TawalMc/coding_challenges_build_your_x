@@ -12,7 +12,7 @@ const (
 
 func WordCounter(cwArgs CWArgs, file string) (CWArgs, error) {
 	args := cwArgs
-	defer duration(track("wc"))
+	// defer duration(track("wc"))
 
 	f, err := os.Open(file)
 	if err != nil {
