@@ -19,7 +19,7 @@ go build -o ccwc .
 ./ccwc /path/to/file
 ```
 
-#### Get release from Github
+#### Get release from Github (ccwc_go (ccwc written in Go))
 Download **ccwc** [here](https://github.com/TawalMc/coding_challenges_build_your_x/releases/tag/ccwc_go_v1.0.0)
 
 They are some points about this Golang implementation of wc (or ccwc):
