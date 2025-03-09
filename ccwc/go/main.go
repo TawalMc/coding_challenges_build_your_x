@@ -20,11 +20,6 @@ func main() {
 	flag.Parse()
 	files := flag.Args()
 
-	// if len(files) == 0 {
-	// 	log.Fatal("provide a file(s) path(s)")
-	// }
-	// fmt.Println(files)
-
 	args := CWArgs{
 		l: ArgAndCount{*lineCount, 0},
 		w: ArgAndCount{*wordCount, 0},
