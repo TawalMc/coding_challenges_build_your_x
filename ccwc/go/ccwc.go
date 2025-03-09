@@ -4,142 +4,117 @@ import (
 	"bufio"
 	"io"
 	"os"
+	"strings"
 )
 
-const (
-	MAX_BYTES_READ = 1024 * 5
-)
-
-func WordCounter(cwArgs CWArgs, file string) (CWArgs, error) {
-	args := cwArgs
-	// defer duration(track("wc"))
-
+func WordCounterFile(cwArgs CWArgs, file string) (CWArgs, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return CWArgs{}, err
 	}
 
-	if args.l.arg {
-		args.l.count, err = lineCount(f)
-
-		if err != nil {
-			return CWArgs{}, err
-		}
-	}
-
-	if args.w.arg {
-		args.w.count, err = wordCount(f)
-
-		if err != nil {
-			return CWArgs{}, err
-		}
-	}
-
-	if args.m.arg {
-		args.m.count, err = charCount(f)
-
-		if err != nil {
-			return CWArgs{}, err
-		}
-	}
-
-	if args.c.arg {
-		args.c.count, err = byteCountV1(f)
-
-		if err != nil {
-			return CWArgs{}, err
-		}
-	}
-
-	f.Close()
-	return args, nil
+	return WordCounter(cwArgs, f)
 }
 
-func lineCount(file *os.File) (int64, error) {
-	// defer duration(track("lineCount"))
-	file.Seek(0, io.SeekStart)
+func WordCounter(cwArgs CWArgs, file *os.File) (CWArgs, error) {
+	// defer duration(track("wc"))
+	args := cwArgs
 
-	var count int64 = 0
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		count++
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
-func wordCount(file *os.File) (int64, error) {
-	// defer duration(track("wordCount"))
-	file.Seek(0, io.SeekStart)
-
-	var count int64 = 0
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		count++
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func charCount(file *os.File) (int64, error) {
-	// defer duration(track("charCount"))
-	file.Seek(0, io.SeekStart)
-
-	var count int64 = 0
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanRunes)
-	for scanner.Scan() {
-		count++
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func byteCountV1(file *os.File) (int64, error) {
-	// defer duration(track("byteCountV1"))
-	file.Seek(0, io.SeekStart)
-
-	var count int64 = 0
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanBytes)
-	for scanner.Scan() {
-		count++
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
-	}
-
-	return count, nil
-}
-
-/* func byteCountV2(file *os.File) (int64, error) {
-	// defer duration(track("byteCountV2"))
-
-	var count int64 = 0
-	byteContainer := make([]byte, MAX_BYTES_READ)
+	reader := bufio.NewReader(file)
 	for {
-		read, err := file.Read(byteContainer)
+		line, err := reader.ReadString('\n')
 		if err != nil && err != io.EOF {
-			return 0, err
+			return CWArgs{}, err
 		}
 
-		count += int64(read)
-		if read < MAX_BYTES_READ {
+		if args.l.arg {
+			args.l.count++
+		}
+
+		if args.w.arg {
+			wCount, err := wordCount(line)
+			args.w.count += wCount
+
+			if err != nil {
+				return CWArgs{}, err
+			}
+		}
+
+		if args.m.arg {
+			mCount, err := charCount(line)
+			args.m.count += mCount
+
+			if err != nil {
+				return CWArgs{}, err
+			}
+		}
+
+		if args.c.arg {
+			cCount, err := byteCountV1(line)
+			args.c.count += cCount
+
+			if err != nil {
+				return CWArgs{}, err
+			}
+		}
+
+		if err == io.EOF {
 			break
 		}
 	}
+
+	file.Close()
+	return args, nil
+}
+
+func wordCount(text string) (int64, error) {
+	// defer duration(track("wordCount"))
+	content := strings.NewReader(text)
+	scanner := bufio.NewScanner(content)
+	scanner.Split(bufio.ScanWords)
+
+	var count int64 = 0
+	for scanner.Scan() {
+		count++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
 	return count, nil
 }
-*/
+
+func charCount(text string) (int64, error) {
+	// defer duration(track("charCount"))
+	content := strings.NewReader(text)
+	scanner := bufio.NewScanner(content)
+	scanner.Split(bufio.ScanRunes)
+
+	var count int64 = 0
+	for scanner.Scan() {
+		count++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func byteCountV1(text string) (int64, error) {
+	// defer duration(track("byteCountV1"))
+	content := strings.NewReader(text)
+	scanner := bufio.NewScanner(content)
+	scanner.Split(bufio.ScanBytes)
+
+	var count int64 = 0
+	for scanner.Scan() {
+		count++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
