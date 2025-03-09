@@ -50,7 +50,7 @@ func WordCounter(cwArgs CWArgs, file *os.File) (CWArgs, error) {
 		}
 
 		if args.c.arg {
-			cCount, err := byteCountV1(line)
+			cCount, err := byteCount(line)
 			args.c.count += cCount
 
 			if err != nil {
@@ -101,7 +101,7 @@ func charCount(text string) (int64, error) {
 	return count, nil
 }
 
-func byteCountV1(text string) (int64, error) {
+func byteCount(text string) (int64, error) {
 	// defer duration(track("byteCountV1"))
 	content := strings.NewReader(text)
 	scanner := bufio.NewScanner(content)
