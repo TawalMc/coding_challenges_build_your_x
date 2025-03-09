@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 )
 
@@ -17,11 +18,11 @@ func main() {
 	byteCount := flag.Bool("c", false, "count number of byte in a file")
 
 	flag.Parse()
-
 	files := flag.Args()
-	if len(files) == 0 {
-		log.Fatal("provide a file(s) path(s)")
-	}
+
+	// if len(files) == 0 {
+	// 	log.Fatal("provide a file(s) path(s)")
+	// }
 	// fmt.Println(files)
 
 	args := CWArgs{
@@ -41,11 +42,21 @@ func main() {
 		}
 	}
 
-	resultChannel := make(chan ResultChan)
+	if len(files) == 0 {
+		// from stdin
+		argsAndCounts, err := WordCounter(args, os.Stdin)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(argsAndCounts)
+		
+		os.Exit(0)
+	}
 
+	resultChannel := make(chan ResultChan)
 	for _, file := range files {
 		go func() {
-			argsAndCounts, err := WordCounter(args, file)
+			argsAndCounts, err := WordCounterFile(args, file)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -70,11 +81,10 @@ func main() {
 		multipleArgsFiles.c.count += r.cw.c.count
 		// }
 	}
-	
+
 	if len(files) > 1 {
 		fmt.Println(multipleArgsFiles, files)
 	}
-
 }
 
 func PrintDefaults() {
