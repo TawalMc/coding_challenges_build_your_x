@@ -17,7 +17,7 @@ func WordCounterFile(cwArgs CWArgs, file string) (CWArgs, error) {
 }
 
 func WordCounter(cwArgs CWArgs, file *os.File) (CWArgs, error) {
-	// defer duration(track("wc"))
+	defer duration(track("wc"))
 	args := cwArgs
 
 	reader := bufio.NewReader(file)
